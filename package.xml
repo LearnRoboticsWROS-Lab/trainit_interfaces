@@ -2,10 +2,11 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>trainit_interfaces</name>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
   <description>
-    TrainIt ROS interfaces (ADR-0022): the stamped, tool-level end-effector state that no standard
-    ROS type carries. Messages only. Commands stay on standard ROS types, one per actuator
+    TrainIt ROS interfaces: the stamped, tool-level end-effector state that no standard ROS type
+    carries (ADR-0022), and the grasp candidate any grasp producer proposes to the runtime
+    (ADR-0026). Messages only. Commands stay on standard ROS types, one per actuator
     (std_srvs/SetBool, control_msgs GripperCommand and FollowJointTrajectory). Every further type
     needs an ADR.
   </description>
@@ -17,6 +18,8 @@
 
   <depend>builtin_interfaces</depend>
   <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>    <!-- ADR-0026: GraspCandidate's pose and vectors -->
+  <depend>diagnostic_msgs</depend>  <!-- ADR-0026: GraspCandidate's metadata (KeyValue) -->
 
   <exec_depend>rosidl_default_runtime</exec_depend>
 

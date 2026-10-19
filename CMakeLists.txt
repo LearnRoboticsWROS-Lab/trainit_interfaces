@@ -5,12 +5,16 @@ find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
 
-# ADR-0022 D3: two messages, and nothing else. A new type needs an ADR.
+# Every type has its ADR: the end-effector state (ADR-0022 D3) and the grasp candidate (ADR-0026).
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/EndEffectorState.msg"
   "msg/EndEffectorActuatorState.msg"
-  DEPENDENCIES builtin_interfaces std_msgs
+  "msg/GraspCandidate.msg"
+  "msg/GraspCandidateArray.msg"
+  DEPENDENCIES builtin_interfaces std_msgs geometry_msgs diagnostic_msgs
 )
 
 ament_export_dependencies(rosidl_default_runtime)
@@ -30,6 +34,13 @@ if(BUILD_TESTING)
   target_compile_definitions(test_end_effector_state PRIVATE
     TRAINIT_EEF_TOKENS_FILE="${_tokens}"
     TRAINIT_EEF_TOKENS_SHA256="${_tokens_sha256}")
+  # ADR-0026: the grasp candidate is exactly the ADR's -- the field list in order, the field types,
+  # the defaults ("no candidate" is an empty array; a default candidate is refused by every consumer)
+  # and the package version that ships it.
+  ament_add_gtest(test_grasp_candidate test/test_grasp_candidate.cpp)
+  target_link_libraries(test_grasp_candidate "${cpp_typesupport_target}" "${introspection_target}")
+  target_compile_definitions(test_grasp_candidate PRIVATE
+    TRAINIT_INTERFACES_PACKAGE_XML="${CMAKE_CURRENT_SOURCE_DIR}/package.xml")
 endif()
 
 ament_package()
