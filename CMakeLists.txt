@@ -8,12 +8,14 @@ find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(diagnostic_msgs REQUIRED)
 
-# Every type has its ADR: the end-effector state (ADR-0022 D3) and the grasp candidate (ADR-0026).
+# Every type has its ADR: the end-effector state (ADR-0022 D3), the grasp candidate (ADR-0026) and the
+# execution event (ADR-0030).
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/EndEffectorState.msg"
   "msg/EndEffectorActuatorState.msg"
   "msg/GraspCandidate.msg"
   "msg/GraspCandidateArray.msg"
+  "msg/ExecutionEvent.msg"
   DEPENDENCIES builtin_interfaces std_msgs geometry_msgs diagnostic_msgs
 )
 
@@ -40,6 +42,12 @@ if(BUILD_TESTING)
   ament_add_gtest(test_grasp_candidate test/test_grasp_candidate.cpp)
   target_link_libraries(test_grasp_candidate "${cpp_typesupport_target}" "${introspection_target}")
   target_compile_definitions(test_grasp_candidate PRIVATE
+    TRAINIT_INTERFACES_PACKAGE_XML="${CMAKE_CURRENT_SOURCE_DIR}/package.xml")
+  # ADR-0030: the execution event is exactly the ADR's -- fields in order with their types, the closed
+  # kind / status vocabularies, "a default event says nothing", and the package version that ships it.
+  ament_add_gtest(test_execution_event test/test_execution_event.cpp)
+  target_link_libraries(test_execution_event "${cpp_typesupport_target}" "${introspection_target}")
+  target_compile_definitions(test_execution_event PRIVATE
     TRAINIT_INTERFACES_PACKAGE_XML="${CMAKE_CURRENT_SOURCE_DIR}/package.xml")
 endif()
 

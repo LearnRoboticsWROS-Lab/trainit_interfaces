@@ -7,7 +7,7 @@
 //  3. a default-constructed candidate carries nothing a consumer could execute: no frame, no id, no
 //     provider, a zero approach (refused as "not a unit vector") and a zero quaternion;
 //  4. no constants: the candidate has no closed vocabulary, so the ADR-0022 token file is untouched;
-//  5. the package version that ships the type (0.2.0).
+//  5. the package version that ships the type: 0.2.0 or later.
 #include <fstream>
 #include <regex>
 #include <sstream>
@@ -146,11 +146,12 @@ TEST(GraspCandidate, HasNoConstants)
   }
 }
 
-TEST(GraspCandidate, ThePackageThatShipsItIs0_2_0)
+TEST(GraspCandidate, ThePackageThatShipsItIs0_2_0OrLater)
 {
   const std::string xml = readFile(TRAINIT_INTERFACES_PACKAGE_XML);
   std::smatch m;
-  ASSERT_TRUE(std::regex_search(xml, m, std::regex("<version>([^<]+)</version>")));
-  EXPECT_EQ(m[1].str(), "0.2.0") << "GraspCandidate / GraspCandidateArray ship with trainit_interfaces 0.2.0 "
-                                    "(ADR-0026): TMR 2.5.0 declares that floor";
+  ASSERT_TRUE(std::regex_search(xml, m, std::regex("<version>(\\d+)\\.(\\d+)\\.(\\d+)</version>")));
+  const int major = std::stoi(m[1].str()), minor = std::stoi(m[2].str());
+  EXPECT_TRUE(major > 0 || minor >= 2) << "GraspCandidate / GraspCandidateArray ship with trainit_interfaces 0.2.0 "
+                                          "(ADR-0026): TMR 2.5.0 declares that floor";
 }
