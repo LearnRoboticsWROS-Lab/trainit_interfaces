@@ -16,6 +16,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/GraspCandidate.msg"
   "msg/GraspCandidateArray.msg"
   "msg/ExecutionEvent.msg"
+  "msg/RobotTaskCommand.msg"
+  "msg/RobotTaskStatus.msg"
   DEPENDENCIES builtin_interfaces std_msgs geometry_msgs diagnostic_msgs
 )
 
@@ -48,6 +50,13 @@ if(BUILD_TESTING)
   ament_add_gtest(test_execution_event test/test_execution_event.cpp)
   target_link_libraries(test_execution_event "${cpp_typesupport_target}" "${introspection_target}")
   target_compile_definitions(test_execution_event PRIVATE
+    TRAINIT_INTERFACES_PACKAGE_XML="${CMAKE_CURRENT_SOURCE_DIR}/package.xml")
+  # ADR-0032: the Robot Task Interface images are exactly the ADR's -- both field lists in order (a PLC adapter copies
+  # them 1:1: fields may only be appended), the closed vocabularies, every result / rejection code (stable public
+  # values), "a default image says nothing", and the package version that ships them.
+  ament_add_gtest(test_robot_task_interface test/test_robot_task_interface.cpp)
+  target_link_libraries(test_robot_task_interface "${cpp_typesupport_target}" "${introspection_target}")
+  target_compile_definitions(test_robot_task_interface PRIVATE
     TRAINIT_INTERFACES_PACKAGE_XML="${CMAKE_CURRENT_SOURCE_DIR}/package.xml")
 endif()
 

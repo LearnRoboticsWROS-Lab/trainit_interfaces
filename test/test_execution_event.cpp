@@ -2,7 +2,7 @@
 //  1. the fields, in order, with their types (Humble has no type hashes: a change ships in lockstep);
 //  2. the closed vocabularies (kind, status): their values, and that a default event is "nothing";
 //  3. a default event carries no identity, no task, no step, no process value (NaN) and no attempt;
-//  4. the package version that ships the type (0.3.0).
+//  4. the package version that ships the type (0.3.0), and its P0 amendment (0.4.0: job_id, result_code APPENDED).
 #include <cmath>
 #include <fstream>
 #include <regex>
@@ -44,6 +44,7 @@ std::vector<std::string> fieldsOf(const MessageMembers* m)
       case ft::ROS_TYPE_STRING: type = "string"; break;
       case ft::ROS_TYPE_DOUBLE: type = "float64"; break;
       case ft::ROS_TYPE_UINT8: type = "uint8"; break;
+      case ft::ROS_TYPE_UINT16: type = "uint16"; break;
       case ft::ROS_TYPE_UINT32: type = "uint32"; break;
       case ft::ROS_TYPE_UINT64: type = "uint64"; break;
       case ft::ROS_TYPE_MESSAGE:
@@ -79,7 +80,9 @@ TEST(ExecutionEvent, FieldsAreExactlyTheAdrsInOrder)
               "header:std_msgs/Header", "run_id:string", "seq:uint64", "kind:uint8", "status:uint8",
               "task_id:string", "step_id:string", "step_kind:string", "process_channel:string",
               "process_kind:string", "process_value:float64", "attempt_index:uint32", "candidate_id:string",
-              "candidate_provider:string"}));
+              "candidate_provider:string",
+              // ADR-0030 Amendment P0 (0.4.0): APPENDED at the end, never inserted
+              "job_id:uint32", "result_code:uint16"}));
 }
 
 TEST(ExecutionEvent, TheClosedVocabulariesAreTheAdrs)
@@ -112,13 +115,16 @@ TEST(ExecutionEvent, ADefaultEventSaysNothing)
   EXPECT_EQ(e.attempt_index, 0u);
   EXPECT_TRUE(e.candidate_id.empty());
   EXPECT_TRUE(e.candidate_provider.empty());
+  EXPECT_EQ(e.job_id, 0u);                  // not a job (trainit_run_bt, or a default event)
+  EXPECT_EQ(e.result_code, 0u);
 }
 
-TEST(ExecutionEvent, ThePackageThatShipsItIs0_3_0)
+TEST(ExecutionEvent, ThePackageThatShipsItsP0AmendmentIs0_4_0)
 {
   const std::string xml = readFile(TRAINIT_INTERFACES_PACKAGE_XML);
   std::smatch m;
   ASSERT_TRUE(std::regex_search(xml, m, std::regex("<version>([^<]+)</version>")));
-  EXPECT_EQ(m[1].str(), "0.3.0") << "ExecutionEvent ships with trainit_interfaces 0.3.0 (ADR-0030): TMR and "
-                                    "trainit_data_ros declare that floor";
+  EXPECT_EQ(m[1].str(), "0.4.0") << "ExecutionEvent's job_id / result_code ship with trainit_interfaces 0.4.0 "
+                                    "(ADR-0030 Amendment P0): TMR and trainit_data_ros raise their floor together "
+                                    "(a 0.3.0 subscriber cannot read the 0.4.0 type)";
 }

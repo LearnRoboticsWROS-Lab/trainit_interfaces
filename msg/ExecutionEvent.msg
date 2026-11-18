@@ -60,3 +60,13 @@ string candidate_provider
 # A grasp step's STEP_* events only: the 1-based count of this step's entries in this run (an attempt), and
 # the grasp candidate it takes (ADR-0026 `id` / `provider`) when it grasps from a candidate set and the
 # candidate is known at that moment. 0 / empty otherwise. Whether an attempt succeeded is NOT stated here.
+
+# --- ADR-0030 Amendment P0 (trainit_interfaces 0.4.0): APPENDED, never inserted -----------------------------------
+uint32 job_id
+# The Robot Task Interface job (ADR-0032) this event belongs to, on EVERY event of a job run by the RobotTaskServer
+# (trainit_task_server: one run per job). 0 outside the server (trainit_run_bt) -- a one-shot run is not a job.
+
+uint16 result_code
+# The job's result code (ADR-0032 Decision 7: 100 OK, 101 BIN_EMPTY, ..., 312 REQUESTER_CONFLICT), on RUN_ENDED and
+# on the TASK_EXITED of the job's exported task. 0 on every other event and outside the server. The outcome of an
+# ATTEMPT is still never stated here.
