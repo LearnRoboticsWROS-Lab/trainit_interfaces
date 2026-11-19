@@ -4,7 +4,8 @@
 //  2. the closed vocabularies (cmd, state, ack, result) and every result / rejection code: stable public values,
 //     never renumbered or reused (Decision 7);
 //  3. a default image says "nothing": no command, UNAVAILABLE, no job, no result -- never a disguised IDLE / START;
-//  4. the package version that ships them (0.4.0).
+//  4. the package version that ships them (0.4.0 or later).
+#include <cstdio>
 #include <fstream>
 #include <regex>
 #include <sstream>
@@ -134,6 +135,7 @@ TEST(RobotTaskInterface, TheCodesAreTheAdrsStablePublicValues)
   EXPECT_EQ(RobotTaskStatus::CODE_STATION_UNAVAILABLE, 310);
   EXPECT_EQ(RobotTaskStatus::CODE_SERVER_STARTED, 311);
   EXPECT_EQ(RobotTaskStatus::CODE_REQUESTER_CONFLICT, 312);
+  EXPECT_EQ(RobotTaskStatus::CODE_STATION_BUSY, 313);   // appended by P0.b (0.5.0)
   EXPECT_EQ(RobotTaskStatus::REJECT_INVALID_REQUEST, 400);
   EXPECT_EQ(RobotTaskStatus::REJECT_UNKNOWN_TASK, 401);
   EXPECT_EQ(RobotTaskStatus::REJECT_BUSY, 402);
@@ -165,10 +167,15 @@ TEST(RobotTaskInterface, ADefaultImageSaysNothing)
   EXPECT_EQ(s.fault_code, 0u);
 }
 
-TEST(RobotTaskInterface, ThePackageThatShipsItIs0_4_0)
+TEST(RobotTaskInterface, ThePackageThatShipsItIs0_4_0OrLater)
 {
+  // The images shipped with 0.4.0 (ADR-0032); 0.5.0 (P0.b) only APPENDS the constant CODE_STATION_BUSY 313 (pinned in
+  // test_machine_channel.cpp) -- the field layout pinned above is unchanged.
   const std::string xml = readFile(TRAINIT_INTERFACES_PACKAGE_XML);
   std::smatch m;
   ASSERT_TRUE(std::regex_search(xml, m, std::regex("<version>([^<]+)</version>")));
-  EXPECT_EQ(m[1].str(), "0.4.0") << "the RTI images ship with trainit_interfaces 0.4.0 (ADR-0032)";
+  int major = 0, minor = 0, patch = 0;
+  ASSERT_EQ(std::sscanf(m[1].str().c_str(), "%d.%d.%d", &major, &minor, &patch), 3) << m[1].str();
+  EXPECT_TRUE(major > 0 || minor >= 4) << "the RTI images ship with trainit_interfaces 0.4.0 (ADR-0032); got "
+                                       << m[1].str();
 }

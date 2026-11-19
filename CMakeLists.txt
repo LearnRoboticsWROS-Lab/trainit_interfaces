@@ -8,8 +8,9 @@ find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(diagnostic_msgs REQUIRED)
 
-# Every type has its ADR: the end-effector state (ADR-0022 D3), the grasp candidate (ADR-0026) and the
-# execution event (ADR-0030).
+# Every type has its ADR: the end-effector state (ADR-0022 D3), the grasp candidate (ADR-0026), the
+# execution event (ADR-0030), the Robot Task Interface images (ADR-0032) and the machine-service images (ADR-0024
+# Amendment P0 as replaced by the P0.b pre-registration, P0B_DESIGN.md §3).
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/EndEffectorState.msg"
   "msg/EndEffectorActuatorState.msg"
@@ -18,6 +19,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ExecutionEvent.msg"
   "msg/RobotTaskCommand.msg"
   "msg/RobotTaskStatus.msg"
+  "msg/ChannelRequest.msg"
+  "msg/ChannelStatus.msg"
   DEPENDENCIES builtin_interfaces std_msgs geometry_msgs diagnostic_msgs
 )
 
@@ -57,6 +60,13 @@ if(BUILD_TESTING)
   ament_add_gtest(test_robot_task_interface test/test_robot_task_interface.cpp)
   target_link_libraries(test_robot_task_interface "${cpp_typesupport_target}" "${introspection_target}")
   target_compile_definitions(test_robot_task_interface PRIVATE
+    TRAINIT_INTERFACES_PACKAGE_XML="${CMAKE_CURRENT_SOURCE_DIR}/package.xml")
+  # P0.b: the machine-service images are exactly the pre-registered contract -- both field lists in order (a PLC-side
+  # library copies them 1:1: fields may only be appended), the closed vocabularies, "a default image says nothing",
+  # STATION_BUSY 313 appended, and the package version that ships them.
+  ament_add_gtest(test_machine_channel test/test_machine_channel.cpp)
+  target_link_libraries(test_machine_channel "${cpp_typesupport_target}" "${introspection_target}")
+  target_compile_definitions(test_machine_channel PRIVATE
     TRAINIT_INTERFACES_PACKAGE_XML="${CMAKE_CURRENT_SOURCE_DIR}/package.xml")
 endif()
 

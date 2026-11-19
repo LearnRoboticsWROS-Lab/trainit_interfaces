@@ -43,7 +43,7 @@ string task_id
 string step_id
 string step_kind
 # STEP_*: the canonical step id (user-chosen, unique within its task) and kind (move, path, process, dwell,
-# detect, grasp, release, tool, task, repeat, retry, fallback). PROCESS_EVENT: the step it was dispatched in, when
+# detect, grasp, release, tool, task, repeat, retry, fallback; `wait` -- a machine wait -- since P0.b). PROCESS_EVENT: the step it was dispatched in, when
 # the innermost active scope is an identified step (a called task's own scope never reports its caller's step).
 # Empty otherwise.
 
@@ -51,8 +51,9 @@ string process_channel
 string process_kind
 float64 process_value
 # PROCESS_EVENT only. The LOGICAL channel id (ADR-0013: never a topic, an address or a symbol); the kind
-# (process_on | process_off | set_value | external); the value: 1 for process_on, 0 for process_off, the
-# value of set_value, 0 for external (it carries none). Elsewhere: empty, empty, 0 (meaningless).
+# (process_on | process_off | set_value | external; `request` -- a machine-service request written, P0.b); the
+# value: 1 for process_on, 0 for process_off, the value of set_value, 0 for external and request (they carry
+# none). Elsewhere: empty, empty, 0 (meaningless).
 
 uint32 attempt_index
 string candidate_id

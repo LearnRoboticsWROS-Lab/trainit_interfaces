@@ -84,6 +84,10 @@ uint16 CODE_CANCELLED_HOLD_UNKNOWN = 309
 uint16 CODE_STATION_UNAVAILABLE = 310
 uint16 CODE_SERVER_STARTED = 311
 uint16 CODE_REQUESTER_CONFLICT = 312
+uint16 CODE_STATION_BUSY = 313
+# 313 APPENDED by P0.b (trainit_interfaces 0.5.0; ADR-0032 Decision 7 note): a job asked a machine service that was
+# still busy or homing, or had not yet taken this process's previous request. A requester treats a code it does not
+# know as a generic FAILED.
 
 uint16 fault_code
 # While FAULTED: why (a FAILED result_code, or CODE_SERVER_STARTED after every server start); 0 otherwise.

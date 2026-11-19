@@ -2,8 +2,10 @@
 //  1. the fields, in order, with their types (Humble has no type hashes: a change ships in lockstep);
 //  2. the closed vocabularies (kind, status): their values, and that a default event is "nothing";
 //  3. a default event carries no identity, no task, no step, no process value (NaN) and no attempt;
-//  4. the package version that ships the type (0.3.0), and its P0 amendment (0.4.0: job_id, result_code APPENDED).
+//  4. the package version that ships the type (0.3.0), and its P0 amendment (0.4.0 or later: job_id, result_code
+//     APPENDED).
 #include <cmath>
+#include <cstdio>
 #include <fstream>
 #include <regex>
 #include <sstream>
@@ -124,7 +126,12 @@ TEST(ExecutionEvent, ThePackageThatShipsItsP0AmendmentIs0_4_0)
   const std::string xml = readFile(TRAINIT_INTERFACES_PACKAGE_XML);
   std::smatch m;
   ASSERT_TRUE(std::regex_search(xml, m, std::regex("<version>([^<]+)</version>")));
-  EXPECT_EQ(m[1].str(), "0.4.0") << "ExecutionEvent's job_id / result_code ship with trainit_interfaces 0.4.0 "
-                                    "(ADR-0030 Amendment P0): TMR and trainit_data_ros raise their floor together "
-                                    "(a 0.3.0 subscriber cannot read the 0.4.0 type)";
+  // 0.4.0 OR LATER: the layout pinned above is unchanged since 0.4.0 (0.5.0, P0.b, only documents the new
+  // `request` process kind and `wait` step kind -- free strings, no field change).
+  int major = 0, minor = 0, patch = 0;
+  ASSERT_EQ(std::sscanf(m[1].str().c_str(), "%d.%d.%d", &major, &minor, &patch), 3) << m[1].str();
+  EXPECT_TRUE(major > 0 || minor >= 4) << "ExecutionEvent's job_id / result_code ship with trainit_interfaces 0.4.0 "
+                                          "(ADR-0030 Amendment P0): TMR and trainit_data_ros raise their floor "
+                                          "together (a 0.3.0 subscriber cannot read the 0.4.0 type); got "
+                                       << m[1].str();
 }

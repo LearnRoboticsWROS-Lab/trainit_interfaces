@@ -2,12 +2,13 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>trainit_interfaces</name>
-  <version>0.4.0</version>
+  <version>0.5.0</version>
   <description>
     TrainIt ROS interfaces: the stamped, tool-level end-effector state that no standard ROS type
     carries (ADR-0022), the grasp candidate any grasp producer proposes to the runtime
-    (ADR-0026), the canonical execution event (ADR-0030) and the Robot Task Interface images a
-    machine master exchanges with a robot's task server (ADR-0032). Messages only. Commands stay on standard ROS types, one per actuator
+    (ADR-0026), the canonical execution event (ADR-0030), the Robot Task Interface images a
+    machine master exchanges with a robot's task server (ADR-0032) and the machine-service images
+    a robot's runner exchanges with a machine (ChannelRequest / ChannelStatus, P0.b). Messages only. Commands stay on standard ROS types, one per actuator
     (std_srvs/SetBool, control_msgs GripperCommand and FollowJointTrajectory). Every further type
     needs an ADR.
   </description>
